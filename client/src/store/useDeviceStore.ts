@@ -26,31 +26,32 @@ interface DeviceStore {
   selectedBrand:Type | null;
   setSelectedType:(type:Type)=>void;
   setSelectedBrand:(type:Type)=>void;
+  setTypes:(types:Type[])=>void;
+  setBrands:(brands:Brand[])=>void;
+  setDevices:(devices:Device[])=>void;
 }
 
 export const useDeviceStore = create<DeviceStore>(set=>({
-  types:[
-    {id:1,name:'Холодильник'},
-    {id:2,name:'Смартфоны'},
-  ],
-  brands:[
-    {id:1, name:'Samsung'},
-    {id:2, name:'Apple'},
-    {id:3, name:'Lenovo'},
-    {id:4, name:'Asus'},
-  ],
-  devices:[
-    {id:1, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'},
-    {id:2, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'},
-    {id:3, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'},
-    {id:4, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'},
-    {id:5, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'},
-    {id:6, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'},
-    {id:7, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'},
-    {id:8, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'},
-  ],
+  types:[],
+  brands:[],
+  devices:[],
   selectedType:null,
   selectedBrand:null,
+  setTypes:(types:Type[])=>set(state=>(
+    {
+      types:types
+    }
+  )),
+  setBrands:(brands:Brand[])=>set(state=>(
+    {
+      brands:brands
+    }
+  )),
+  setDevices:(devices:Device[])=>set(state=>(
+    {
+      devices:devices
+    }
+  )),
   setSelectedType:(type:Type)=>set(state=>(
     {
       selectedType: type

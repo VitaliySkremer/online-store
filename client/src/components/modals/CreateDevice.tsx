@@ -2,7 +2,8 @@ import Modal from "react-bootstrap/Modal";
 import {Col, Dropdown, Form, Row} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import {useDeviceStore} from "../../store/useDeviceStore";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {createDevice, fetchBrand, fetchDevice, fetchTypes} from "../../http/deviceAPI";
 
 interface CreateDeviceProps {
   show:boolean;
@@ -14,11 +15,35 @@ interface info {
   id:string
 }
 
+interface IType {
+  id: number;
+  name:string
+}
+
+interface IBrand {
+  id: number;
+  name:string
+}
+
 export const CreateDevice = ({show, onHide}:CreateDeviceProps) => {
 
-  const types = useDeviceStore(state => state.types)
-  const brands = useDeviceStore(state => state.brands)
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState(0);
+  const [file, setFile] = useState<any>(null);
+  const [type, setType] = useState<IType | null>(null);
+  const [brand, setBrand] = useState<IBrand | null>(null);
+
+  const [types, setTypes] = useState<IType[]>([]);
+  const [brands, setBrands] = useState<IBrand[]>([]);
+
+
   const [info, setInfo] = useState<info[]>([])
+
+
+  useEffect(()=>{
+    fetchTypes().then(data=> setTypes(data))
+    fetchBrand().then(data=> setBrands(data))
+  },[])
 
   const addInfo = () =>{
     setInfo([...info, {title:'', description:'', id:Date.now().toString()}])
@@ -26,6 +51,28 @@ export const CreateDevice = ({show, onHide}:CreateDeviceProps) => {
 
   const removeInfo = (id:string) =>{
     setInfo(info.filter(item=> item.id !== id))
+  }
+
+  const selectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if(event.target.files){
+      setFile(event.target.files[0]);
+    }
+  }
+
+  const changeInfo = (key: string, value: string, id:string) =>{
+    setInfo(info.map(i=> i.id === id ? {...i, [key]: value}: i))
+  }
+
+  const addDevice = () =>{
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('price', price.toString());
+    formData.append('img', file);
+    formData.append('brandId', `${brand?.id}`);
+    formData.append('typeId', `${type?.id}`);
+    formData.append('info', JSON.stringify(info));
+    createDevice(formData)
+      .then(data=> onHide());
   }
 
   return (
@@ -44,11 +91,14 @@ export const CreateDevice = ({show, onHide}:CreateDeviceProps) => {
         <Form>
           <Dropdown className="mt-3">
             <Dropdown.Toggle>
-              Выберите тип
+              {type?.name || 'Выберите тип'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
               {types.map(type=>
-                <Dropdown.Item key={type.id}>
+                <Dropdown.Item
+                  onClick={()=>setType(type)}
+                  key={type.id}
+                >
                   {type.name}
                 </Dropdown.Item>
               )}
@@ -57,19 +107,22 @@ export const CreateDevice = ({show, onHide}:CreateDeviceProps) => {
 
           <Dropdown className="mt-3">
             <Dropdown.Toggle>
-              Выберите брэнд
+              {brand?.name || 'Выберите брэнд'}
             </Dropdown.Toggle>
             <Dropdown.Menu>
               {brands.map(brand=>
-                <Dropdown.Item key={brand.id}>
+                <Dropdown.Item
+                  onClick={()=>setBrand(brand)}
+                  key={brand.id}
+                >
                   {brand.name}
                 </Dropdown.Item>
               )}
             </Dropdown.Menu>
           </Dropdown>
-          <Form.Control className="mt-2" placeholder="Введите название товара"/>
-          <Form.Control type="number" className="mt-2" placeholder="Введите стоимость"/>
-          <Form.Control type="file" className="mt-2" placeholder="Добавьте фото"/>
+          <Form.Control value={name} onChange={e=>setName(e.target.value)} className="mt-2" placeholder="Введите название товара"/>
+          <Form.Control value={price} onChange={e=>setPrice(Number(e.target.value))} type="number" className="mt-2" placeholder="Введите стоимость"/>
+          <Form.Control onChange={selectFile} type="file" className="mt-2" placeholder="Добавьте фото"/>
           <Button
             className="mt-2"
             variant={"outline-primary"}
@@ -79,11 +132,15 @@ export const CreateDevice = ({show, onHide}:CreateDeviceProps) => {
             <Row className="mt-2" key={item.id}>
               <Col md={4}>
                 <Form.Control
+                  value={item.title}
+                  onChange={(e)=>changeInfo('title',e.target.value,item.id)}
                   placeholder="Введите название характеристики"
                 />
               </Col>
               <Col md={4}>
                 <Form.Control
+                  value={item.description}
+                  onChange={(e)=>changeInfo('description',e.target.value,item.id)}
                   placeholder="Введите значение"
                 />
               </Col>
@@ -95,7 +152,7 @@ export const CreateDevice = ({show, onHide}:CreateDeviceProps) => {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant={"outline-primary"}>Добавить</Button>
+        <Button onClick={addDevice} variant={"outline-primary"}>Добавить</Button>
       </Modal.Footer>
     </Modal>
   )

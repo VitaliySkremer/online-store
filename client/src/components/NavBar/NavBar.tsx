@@ -10,8 +10,14 @@ import { useNavigate } from "react-router-dom";
 export const NavBar = () => {
   const navigate = useNavigate();
   const user = useUserStore(state => state.user)
+  const authUser = useUserStore(state => state.setUser)
   const isAuth = useUserStore(state => state.isAuth)
   const setIsAuth = useUserStore(state => state.setAuth)
+
+  const logout = () =>{
+    setIsAuth(false)
+    authUser({ email:'', role:''})
+  }
 
   return (
     <Navbar bg="dark" variant="dark">
@@ -24,14 +30,14 @@ export const NavBar = () => {
             ?<Button
               variant={'outline-light'}
               className='me-2'
-              onClick={()=>navigate(ERouter.LOGIN_ROUTER)}
+              onClick={logout}
               >Выйти</Button>
             :<Button
               variant={'outline-light'}
               className='me-2'
-              onClick={()=>setIsAuth(!isAuth)}>Авторизация</Button>
+              onClick={()=>navigate(ERouter.LOGIN_ROUTER)}>Авторизация</Button>
           }
-          <Button variant={'outline-light'} onClick={()=> navigate(ERouter.ADMIN_ROUTER)}>Панель администратора</Button>
+          {user.role==="ADMIN" && <Button variant={'outline-light'} onClick={()=> navigate(ERouter.ADMIN_ROUTER)}>Панель администратора</Button>}
         </Nav>
       </Container>
     </Navbar>

@@ -1,6 +1,8 @@
 import Modal from "react-bootstrap/Modal";
 import {Form} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
+import {useState} from "react";
+import {createBrand} from "../../http/deviceAPI";
 
 interface CreateBrandProps {
   show:boolean;
@@ -8,6 +10,17 @@ interface CreateBrandProps {
 }
 
 export const CreateBrand = ({show, onHide}:CreateBrandProps) => {
+
+  const [brand, setBrand] = useState('')
+
+  const addBrand = () =>{
+    createBrand(brand)
+      .then(data=>{
+        setBrand('')
+        onHide();
+      })
+  }
+
   return (
     <Modal
       show={show}
@@ -24,11 +37,13 @@ export const CreateBrand = ({show, onHide}:CreateBrandProps) => {
         <Form>
           <Form.Control
             placeholder='Введите название бренда'
+            value={brand}
+            onChange={event=> setBrand(event.target.value)}
           />
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant={"outline-primary"}>Добавить</Button>
+        <Button onClick={addBrand} variant={"outline-primary"}>Добавить</Button>
       </Modal.Footer>
     </Modal>
   )

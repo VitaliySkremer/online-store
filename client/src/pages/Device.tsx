@@ -1,23 +1,44 @@
 import Container from "react-bootstrap/Container";
-import {Button, Card, Col, Image, Row} from "react-bootstrap";
+import {Button, Card, Col, Image, Row, Spinner} from "react-bootstrap";
+import {useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
+import {fetchOneDevice} from "../http/deviceAPI";
+
+interface info{
+  id: number;
+  title:string;
+  description:string;
+}
+
+interface Device {
+  name: string;
+  rating: number;
+  price: number;
+  img: string;
+  info:info[]
+}
 
 export const Device = () => {
-  const device = {id:1, name:'Iphon 12 pro', price:12000, rating:5, img:'https://www.cifrus.ru/pictures/news/iphone-12-v-novom-tsvete-purple-3.jpg'};
-  const description = [
-    {id:1, title:'Оперативная память', description:'5 гб'},
-    {id:2, title:'Оперативная память', description:'5 гб'},
-    {id:3, title:'Оперативная память', description:'5 гб'},
-    {id:4, title:'Оперативная память', description:'5 гб'},
-    {id:5, title:'Оперативная память', description:'5 гб'},
-    {id:6, title:'Оперативная память', description:'5 гб'},
-    {id:7, title:'Оперативная память', description:'5 гб'},
-  ]
+  const [loading, setLoading] = useState(true);
+  const [device, setDevice] = useState<Device>({name:'',info:[], img:'', price:0, rating:0})
+  const {id} = useParams();
+  useEffect(()=>{
+    if(id){
+      fetchOneDevice(id)
+        .then(data =>setDevice(data))
+        .finally(()=> setLoading(false));
+    }
+  }, [])
+
+  if(loading){
+    return <Spinner animation={"grow"}/>
+  }
 
   return (
     <Container className="mt-3">
       <Row>
         <Col md={4}>
-          <Image width={300} height={300} src={device.img}/>
+          <Image width={300} height={300} src={process.env.REACT_APP_API_URL + '/'+ device.img}/>
         </Col>
         <Col md={4}>
           <Row>
@@ -36,7 +57,7 @@ export const Device = () => {
       </Row>
       <Row className="d-flex flex-column m-2">
         <h2>Характеристики</h2>
-        {description.map((info, index)=>
+        {device.info.map((info, index)=>
           <Row key={info.id} style={{background: index%2===0?'lightgray':'transparent', padding:10}}>
             {info.title}: {info.description}
           </Row>

@@ -1,18 +1,20 @@
 import {create} from "zustand";
 
-interface IUser {
-  email:string
+export interface IUser {
+  email:string;
+  role:string;
 }
 
 interface AuthUserState {
   isAuth: boolean;
   user:IUser;
   setAuth:(flag:boolean)=> void;
+  setUser:(user:IUser)=>void
 }
 
 export const useUserStore = create<AuthUserState>(set=>({
-  isAuth: true,
-  user:{ email:''},
+  isAuth: false,
+  user:{ email:'', role:''},
   setAuth:(flag:boolean)=> set(state=>(
     {
       isAuth: flag
